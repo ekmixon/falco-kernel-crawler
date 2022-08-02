@@ -15,14 +15,27 @@ def v6_or_v7(ver):
 class CentosMirror(repo.Distro):
     def __init__(self, arch):
         mirrors = [
-            rpm.RpmMirror('http://mirror.centos.org/centos/', 'os/' + arch + '/',  v7_only),
-            rpm.RpmMirror('http://mirror.centos.org/centos/', 'updates/' + arch + '/', v7_only),
-            # CentOS 8 reached end-of-life at the end of 2021, so no point looking for it
-            # rpm.RpmMirror('http://mirror.centos.org/centos/', 'BaseOS/' + arch + '/os/', v8_only),
-            rpm.RpmMirror('http://linuxsoft.cern.ch/centos-vault/', 'os/' + arch + '/', v6_or_v7),
-            rpm.RpmMirror('http://linuxsoft.cern.ch/centos-vault/', 'updates/' + arch + '/', v6_or_v7),
-            rpm.RpmMirror('http://linuxsoft.cern.ch/centos-vault/', 'BaseOS/' + arch + '/os/', v8_only),
+            rpm.RpmMirror(
+                'http://mirror.centos.org/centos/', f'os/{arch}/', v7_only
+            ),
+            rpm.RpmMirror(
+                'http://mirror.centos.org/centos/', f'updates/{arch}/', v7_only
+            ),
+            rpm.RpmMirror(
+                'http://linuxsoft.cern.ch/centos-vault/', f'os/{arch}/', v6_or_v7
+            ),
+            rpm.RpmMirror(
+                'http://linuxsoft.cern.ch/centos-vault/',
+                f'updates/{arch}/',
+                v6_or_v7,
+            ),
+            rpm.RpmMirror(
+                'http://linuxsoft.cern.ch/centos-vault/',
+                f'BaseOS/{arch}/os/',
+                v8_only,
+            ),
         ]
+
         super(CentosMirror, self).__init__(mirrors, arch)
 
     def to_driverkit_config(self, release, deps):

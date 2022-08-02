@@ -33,7 +33,7 @@ class DebianMirror(repo.Distro):
         with click.progressbar(repos, label='Listing packages', file=sys.stderr, item_show_func=repo.to_s) as repos:
             for repository in repos:
                 repo_packages = repository.get_raw_package_db()
-                all_packages.update(repo_packages)
+                all_packages |= repo_packages
                 kernel_packages = repository.get_package_list(repo_packages, version)
                 all_kernel_packages.extend(kernel_packages)
 
@@ -48,4 +48,4 @@ class DebianMirror(repo.Distro):
                 headers.append(dep)
             if dep.find("kbuild") != -1:
                 headers.append(dep)
-        return repo.DriverKitConfig(release + "-" + self.arch, "debian", headers)
+        return repo.DriverKitConfig(f"{release}-{self.arch}", "debian", headers)

@@ -39,13 +39,17 @@ class RpmRepository(repo.Repository):
 
     @classmethod
     def build_base_query(cls, filter=''):
-        base_query = '''SELECT version || '-' || release || '.' || arch, pkgkey FROM packages WHERE {}'''.format(
-            cls.kernel_package_query())
-        if not filter:
-            return base_query, ()
-        else:
-            # if filtering, match anythint like 5.6.6 (version) or 5.6.6-300.fc32 (version || '-' || release)
-            return base_query + ''' AND (version = ? OR version || '-' || "release" = ?)''', (filter, filter)
+        base_query = f'''SELECT version || '-' || release || '.' || arch, pkgkey FROM packages WHERE {cls.kernel_package_query()}'''
+
+        return (
+            (
+                base_query
+                + ''' AND (version = ? OR version || '-' || "release" = ?)''',
+                (filter, filter),
+            )
+            if filter
+            else (base_query, ())
+        )
 
     @classmethod
     def parse_repo_db(cls, repo_db, filter=''):
@@ -67,7 +71,7 @@ class RpmRepository(repo.Repository):
         return cursor.fetchall()
 
     def get_repodb_url(self):
-        repomd = get_url(self.base_url + 'repodata/repomd.xml')
+        repomd = get_url(f'{self.base_url}repodata/repomd.xml')
         pkglist_url = self.get_loc_by_xpath(repomd, '//repo:repomd/repo:data[@type="primary_db"]/repo:location/@href')
         return self.base_url + pkglist_url
 
@@ -102,7 +106,7 @@ class RpmMirror(repo.Mirror):
         return self.base_url
 
     def dist_url(self, dist):
-        return '{}{}{}'.format(self.base_url, dist, self.variant)
+        return f'{self.base_url}{dist}{self.variant}'
 
     def dist_exists(self, dist):
         try:

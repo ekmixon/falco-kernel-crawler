@@ -15,16 +15,10 @@ class DriverKitConfig(object):
         self.kernelversion = kernelversion
         self.kernelrelease = kernelrelease
         self.target = target
-        if isinstance(headers, list):
-            self.headers = headers
-        else:
-            # Fake single-list
-            self.headers = [headers]
+        self.headers = headers if isinstance(headers, list) else [headers]
 
 def to_s(s):
-    if s is None:
-        return ''
-    return str(s)
+    return '' if s is None else str(s)
 
 
 class Mirror(object):

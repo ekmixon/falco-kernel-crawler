@@ -51,9 +51,5 @@ def crawl_kernels(distro, version, arch, to_driverkit):
         if distname == distro or distro == "*":
             d = dist(arch)
             res = d.get_package_tree(version)
-            if to_driverkit:
-                ret[distname] = to_driverkit_config(d, res)
-            else:
-                ret[distname] = res
-
+            ret[distname] = to_driverkit_config(d, res) if to_driverkit else res
     return ret

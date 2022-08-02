@@ -59,9 +59,15 @@ class AmazonLinux2Mirror(repo.Distro):
     def list_repos(self):
         repo_urls = set()
         with click.progressbar(
-                self.AL2_REPOS, label='Checking repositories', file=sys.stderr, item_show_func=repo.to_s) as repos:
+                    self.AL2_REPOS, label='Checking repositories', file=sys.stderr, item_show_func=repo.to_s) as repos:
             for r in repos:
-                repo_urls.add(get_al_repo("http://amazonlinux.us-east-1.amazonaws.com/2/", r + '/' + self.arch))
+                repo_urls.add(
+                    get_al_repo(
+                        "http://amazonlinux.us-east-1.amazonaws.com/2/",
+                        f'{r}/{self.arch}',
+                    )
+                )
+
         return [rpm.RpmRepository(url) for url in sorted(repo_urls)]
 
     def to_driverkit_config(self, release, deps):
@@ -83,12 +89,18 @@ class AmazonLinux2022Mirror(repo.Distro):
     def list_repos(self):
         repo_urls = set()
         with click.progressbar(
-                self.AL2022_REPOS, label='Checking repositories', file=sys.stderr, item_show_func=repo.to_s) as repos:
+                    self.AL2022_REPOS, label='Checking repositories', file=sys.stderr, item_show_func=repo.to_s) as repos:
             # This was obtained by running:
             # cat /etc/yum.repos.d/amazonlinux.repo
             # https://al2022-repos-$awsregion-9761ab97.s3.dualstack.$awsregion.$awsdomain/core/mirrors/$releasever/$basearch/mirror.list
             for r in repos:
-                repo_urls.add(get_al_repo("https://al2022-repos-us-east-1-9761ab97.s3.dualstack.us-east-1.amazonaws.com/core/mirrors/", r + '/' + self.arch))
+                repo_urls.add(
+                    get_al_repo(
+                        "https://al2022-repos-us-east-1-9761ab97.s3.dualstack.us-east-1.amazonaws.com/core/mirrors/",
+                        f'{r}/{self.arch}',
+                    )
+                )
+
         return [rpm.RpmRepository(url) for url in sorted(repo_urls)]
 
     def to_driverkit_config(self, release, deps):

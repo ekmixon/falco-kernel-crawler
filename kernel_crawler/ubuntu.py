@@ -23,9 +23,9 @@ class UbuntuMirror(repo.Distro):
                 if d is None:
                     continue
 
-                d = d.group(0)
-                target = "ubuntu" + d[7:len(d) - 1]
-                release = krel + d[7:len(d) - 1]
+                d = d[0]
+                target = "ubuntu" + d[7:-1]
+                release = krel + d[7:-1]
 
                 # Driverkit wants "-generic" for generic ubuntu
                 if target == "ubuntu":

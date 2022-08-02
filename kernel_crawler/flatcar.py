@@ -36,12 +36,14 @@ class FlatcarMirror(Distro):
         dists = dists.content
         doc = html.fromstring(dists, base_url)
         dists = doc.xpath('/html/body//a[not(@href="../")]/@href')
-        return [FlatcarRepository('{}{}'.format(base_url, dist.lstrip('./'))) for dist in dists
-                if dist.endswith('/')
-                and dist.startswith('./')
-                and 'current' not in dist
-                and '-' not in dist
-                ]
+        return [
+            FlatcarRepository(f"{base_url}{dist.lstrip('./')}")
+            for dist in dists
+            if dist.endswith('/')
+            and dist.startswith('./')
+            and 'current' not in dist
+            and '-' not in dist
+        ]
 
     def list_repos(self):
         repos = []

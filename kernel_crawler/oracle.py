@@ -10,11 +10,11 @@ class OracleRepository(rpm.RpmRepository):
 class Oracle6Mirror(repo.Distro):
     def repos(self):
         return [
-            'http://yum.oracle.com/repo/OracleLinux/OL6/latest/' + self.arch + '/',
-            'http://yum.oracle.com/repo/OracleLinux/OL6/MODRHCK/' + self.arch + '/',
-            'http://yum.oracle.com/repo/OracleLinux/OL6/UEKR4/' + self.arch + '/',
-            'http://yum.oracle.com/repo/OracleLinux/OL6/UEKR3/latest/' + self.arch + '/',
-            'http://yum.oracle.com/repo/OracleLinux/OL6/UEK/latest/' + self.arch + '/',
+            f'http://yum.oracle.com/repo/OracleLinux/OL6/latest/{self.arch}/',
+            f'http://yum.oracle.com/repo/OracleLinux/OL6/MODRHCK/{self.arch}/',
+            f'http://yum.oracle.com/repo/OracleLinux/OL6/UEKR4/{self.arch}/',
+            f'http://yum.oracle.com/repo/OracleLinux/OL6/UEKR3/latest/{self.arch}/',
+            f'http://yum.oracle.com/repo/OracleLinux/OL6/UEK/latest/{self.arch}/',
         ]
 
     def __init__(self, arch):
@@ -31,12 +31,12 @@ class Oracle6Mirror(repo.Distro):
 class Oracle7Mirror(repo.Distro):
     def repos(self):
         return [
-            'http://yum.oracle.com/repo/OracleLinux/OL7/latest/' + self.arch + '/',
-            'http://yum.oracle.com/repo/OracleLinux/OL7/MODRHCK/' + self.arch + '/',
-            'http://yum.oracle.com/repo/OracleLinux/OL7/UEKR6/' + self.arch + '/',
-            'http://yum.oracle.com/repo/OracleLinux/OL7/UEKR5/' + self.arch + '/',
-            'http://yum.oracle.com/repo/OracleLinux/OL7/UEKR4/' + self.arch + '/',
-            'http://yum.oracle.com/repo/OracleLinux/OL7/UEKR3/' + self.arch + '/',
+            f'http://yum.oracle.com/repo/OracleLinux/OL7/latest/{self.arch}/',
+            f'http://yum.oracle.com/repo/OracleLinux/OL7/MODRHCK/{self.arch}/',
+            f'http://yum.oracle.com/repo/OracleLinux/OL7/UEKR6/{self.arch}/',
+            f'http://yum.oracle.com/repo/OracleLinux/OL7/UEKR5/{self.arch}/',
+            f'http://yum.oracle.com/repo/OracleLinux/OL7/UEKR4/{self.arch}/',
+            f'http://yum.oracle.com/repo/OracleLinux/OL7/UEKR3/{self.arch}/',
         ]
 
     def __init__(self, arch):
@@ -54,8 +54,8 @@ class Oracle7Mirror(repo.Distro):
 class Oracle8Mirror(repo.Distro):
     def repos(self):
         return [
-            'http://yum.oracle.com/repo/OracleLinux/OL8/baseos/latest/' + self.arch + '/',
-            'http://yum.oracle.com/repo/OracleLinux/OL8/UEKR6/' + self.arch + '/',
+            f'http://yum.oracle.com/repo/OracleLinux/OL8/baseos/latest/{self.arch}/',
+            f'http://yum.oracle.com/repo/OracleLinux/OL8/UEKR6/{self.arch}/',
         ]
 
     def __init__(self, arch):

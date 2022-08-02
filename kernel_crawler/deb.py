@@ -114,17 +114,21 @@ class DebRepository(repo.Repository):
                         cache[dep] = deps
                     dependencies |= cache[dep]
             else:
-                raise (IncompletePackageListException("{} not in package list".format(dep)))
+                raise IncompletePackageListException(f"{dep} not in package list")
         return dependencies
 
     @classmethod
     def get_package_deps(cls, packages, pkg):
-        all_deps = set()
-        if not cls.is_kernel_package(pkg):
-            return set()
-        for dep in cls.filter_kernel_packages(cls.transitive_dependencies(packages, pkg)):
-            all_deps.add(packages[dep]['URL'])
-        return all_deps
+        return (
+            {
+                packages[dep]['URL']
+                for dep in cls.filter_kernel_packages(
+                    cls.transitive_dependencies(packages, pkg)
+                )
+            }
+            if cls.is_kernel_package(pkg)
+            else set()
+        )
 
 
     # this method returns a list of available kernel-looking package _names_
@@ -135,22 +139,19 @@ class DebRepository(repo.Repository):
             if not p.startswith('linux-headers-'):
                 continue
             release = p.replace('linux-headers-', '')
-            if 'linux-modules-{}'.format(release) in packages:
-                kernel_packages.append(p)
-                kernel_packages.append('linux-modules-{}'.format(release))
-            elif 'linux-image-{}'.format(release) in packages:
-                kernel_packages.append(p)
-                kernel_packages.append('linux-image-{}'.format(release))
-
+            if f'linux-modules-{release}' in packages:
+                kernel_packages.extend((p, f'linux-modules-{release}'))
+            elif f'linux-image-{release}' in packages:
+                kernel_packages.extend((p, f'linux-image-{release}'))
         if not package_filter:
-            logger.debug("kernel_packages[{}]=\n{}".format(str(self), pp.pformat(kernel_packages)))
+            logger.debug(f"kernel_packages[{str(self)}]=\n{pp.pformat(kernel_packages)}")
             return kernel_packages
-            # return [dep for dep in kernel_packages if self.is_kernel_package(dep) and not dep.endswith('-dbg')]
+                # return [dep for dep in kernel_packages if self.is_kernel_package(dep) and not dep.endswith('-dbg')]
 
         kernel_packages = set(kernel_packages)
-        linux_modules = 'linux-modules-{}'.format(package_filter)
-        linux_headers = 'linux-headers-{}'.format(package_filter)
-        linux_image = 'linux-image-{}'.format(package_filter)
+        linux_modules = f'linux-modules-{package_filter}'
+        linux_headers = f'linux-headers-{package_filter}'
+        linux_image = f'linux-image-{package_filter}'
         # if the filter is an exact match on package name, just pick that
         if package_filter in packages:
             return [package_filter]
@@ -192,31 +193,25 @@ class DebRepository(repo.Repository):
         #           'http://security.ubuntu.com/ubuntu/pool/main/l/linux-signed-azure/linux-image-5.15.0-1001-azure_5.15.0-1001.2_amd64.deb'},
 
         deps = {}
-        logger.debug("packages=\n{}".format(pp.pformat(packages)))
-        logger.debug("package_list=\n{}".format(pp.pformat(package_list)))
+        logger.debug(f"packages=\n{pp.pformat(packages)}")
+        logger.debug(f"package_list=\n{pp.pformat(package_list)}")
         with click.progressbar(package_list, label='Building dependency tree', file=sys.stderr,
-                               item_show_func=repo.to_s) as pkgs:
+                                   item_show_func=repo.to_s) as pkgs:
             for pkg in pkgs:
                 pv = packages[pkg]['Version']
-                m = cls.KERNEL_RELEASE_UPDATE.match(pv)
-                if m:
-                    pv = '{}/{}'.format(m.group(1), m.group(2))
+                if m := cls.KERNEL_RELEASE_UPDATE.match(pv):
+                    pv = f'{m.group(1)}/{m.group(2)}'
                 try:
-                    logger.debug("Building dependency tree for {}, pv={}".format(str(pkg), pv))
+                    logger.debug(f"Building dependency tree for {str(pkg)}, pv={pv}")
                     deps.setdefault(pv, set()).update(cls.get_package_deps(packages, pkg))
                 except IncompletePackageListException:
-                    logger.debug("No dependencies found for {}, pv={}".format(str(pkg), pv))
-                    pass
-
-        logger.debug("before pruning, deps=\n{}".format(pp.pformat(deps)))
+                    logger.debug(f"No dependencies found for {str(pkg)}, pv={pv}")
+        logger.debug(f"before pruning, deps=\n{pp.pformat(deps)}")
         for pkg, dep_list in list(deps.items()):
-            have_headers = False
-            for dep in dep_list:
-                if 'linux-headers' in dep:
-                    have_headers = True
+            have_headers = any('linux-headers' in dep for dep in dep_list)
             if not have_headers:
                 del deps[pkg]
-        logger.debug("after pruning, deps=\n{}".format(pp.pformat(deps)))
+        logger.debug(f"after pruning, deps=\n{pp.pformat(deps)}")
         return deps
 
     def get_package_tree(self, filter=''):
@@ -256,7 +251,7 @@ class DebMirror(repo.Mirror):
         return repos
 
     def list_repos(self):
-        dists_url = self.base_url + 'dists/'
+        dists_url = f'{self.base_url}dists/'
         dists = requests.get(dists_url)
         dists.raise_for_status()
         dists = dists.content
@@ -270,15 +265,14 @@ class DebMirror(repo.Mirror):
                  ]
 
         repos = {}
-        with click.progressbar(
-                dists, label='Scanning {}'.format(self.base_url), file=sys.stderr, item_show_func=repo.to_s) as dists:
+        with click.progressbar(dists, label=f'Scanning {self.base_url}', file=sys.stderr, item_show_func=repo.to_s) as dists:
             for dist in dists:
                 try:
-                    repos.update(self.scan_repo('dists/{}'.format(dist)))
+                    repos |= self.scan_repo(f'dists/{dist}')
                 except requests.HTTPError:
                     pass
                 try:
-                    repos.update(self.scan_repo('dists/{}updates/'.format(dist)))
+                    repos.update(self.scan_repo(f'dists/{dist}updates/'))
                 except requests.HTTPError:
                     pass
 

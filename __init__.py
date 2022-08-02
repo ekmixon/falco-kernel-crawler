@@ -37,11 +37,11 @@ def crawl(distro, version='', arch='', out_fmt=''):
     out_fmt = str.lower(out_fmt)
     if out_fmt == 'plain':
         for dist, ks in res.items():
-            print('=== {} ==='.format(dist))
+            print(f'=== {dist} ===')
             for release, packages in ks.items():
-                print('=== {} ==='.format(release))
+                print(f'=== {release} ===')
                 for pkg in packages:
-                    print(' {}'.format(pkg))
+                    print(f' {pkg}')
     elif out_fmt == 'json':
         json_object = json.dumps(res, indent=2, cls=SetEncoder)
         print(json_object)
